@@ -635,7 +635,7 @@ select:focus {
     riskPill.style.color = riskCategory === 'pending' ? '#ffffff' : '#0b1118';
     riskLabel.textContent = config.description;
     const widthPercent = valid && riskPercent ? Math.min((riskPercent / 5) * 100, 100) : 0;
-    gaugeFill.style.width = ${widthPercent}%;
+    gaugeFill.style.width = `${widthPercent}%`;
     gaugeFill.style.backgroundColor = config.color;
 
     if (riskCategory !== lastRiskCategory && riskCategory !== 'pending') {
