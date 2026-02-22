@@ -1,0 +1,672 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeGuard Risk Calculator</title>
+<style>
+:root {
+  --bg:#0d1117;
+  --surface:#161b22;
+  --accent:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --muted:#94a3b8;
+  --highlight:#22d3ee;
+  --border:#30363d;
+  --text:#cdd9f2;
+  --subtle:#6b7280;
+}
+* {
+  box-sizing:border-box;
+}
+body {
+  margin:0;
+  font-family:'Inter', 'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:1.5rem;
+}
+.app-shell {
+  width:100%;
+  max-width:540px;
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+}
+.panel {
+  background:var(--surface);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:20px;
+  padding:1.5rem;
+  box-shadow:0 20px 40px rgba(0,0,0,0.45);
+}
+.hero h1 {
+  margin:0.35rem 0 0;
+  font-size:1.8rem;
+  letter-spacing:0.02em;
+}
+.hero .subtitle {
+  margin:0.25rem 0 0;
+  color:var(--muted);
+  font-size:0.95rem;
+}
+.eyebrow {
+  color:var(--accent);
+  letter-spacing:0.24em;
+  font-size:0.75rem;
+  text-transform:uppercase;
+}
+.section-title h2 {
+  margin:0;
+  font-size:1.1rem;
+  letter-spacing:0.02em;
+}
+.section-title p {
+  margin:0.2rem 0 0;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+.input-group {
+  margin-top:1.2rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+}
+.input-group label {
+  font-size:0.85rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:600;
+}
+.input-with-hint {
+  position:relative;
+}
+.input-with-hint input,
+input,
+select {
+  width:100%;
+  padding:0.9rem 1rem;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0f1319;
+  color:var(--text);
+  font-size:1rem;
+  transition:border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-with-hint input:focus,
+input:focus,
+select:focus {
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(16,185,129,0.15);
+}
+.input-with-hint .unit {
+  position:absolute;
+  right:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:0.85rem;
+  color:var(--muted);
+}
+.field-error {
+  min-height:1rem;
+  font-size:0.75rem;
+  color:var(--danger);
+}
+.chips {
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+}
+.risk-chip {
+  border:none;
+  background:#1f2937;
+  color:var(--muted);
+  border-radius:999px;
+  padding:0.35rem 0.9rem;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  font-size:0.9rem;
+}
+.risk-chip.active {
+  background:rgba(16,185,129,0.15);
+  color:var(--accent);
+  border:1px solid rgba(16,185,129,0.4);
+}
+.risk-chip:hover {
+  border-color:rgba(255,255,255,0.35);
+}
+.conditional-field {
+  position:relative;
+  overflow:hidden;
+  transition:max-height 0.35s ease, opacity 0.35s ease;
+  max-height:0;
+  opacity:0;
+}
+.conditional-field.visible {
+  max-height:200px;
+  opacity:1;
+}
+.toggle-advanced {
+  margin-top:1rem;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:0.85rem 1rem;
+  background:#111827;
+  color:var(--highlight);
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.95rem;
+  transition:background 0.2s ease;
+}
+.toggle-advanced:hover {
+  background:#1f2937;
+}
+.toggle-advanced span {
+  font-size:0.85rem;
+  color:var(--muted);
+}
+.advanced-panel {
+  margin-top:0.75rem;
+  border-radius:14px;
+  padding:1rem;
+  background:#0f1319;
+  border:1px solid rgba(255,255,255,0.05);
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transition:max-height 0.35s ease, opacity 0.35s ease;
+}
+.advanced-panel.open {
+  max-height:220px;
+  opacity:1;
+}
+.results-panel {
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  position:relative;
+}
+.results-panel.inactive {
+  opacity:0.5;
+}
+.results-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.result-row {
+  background:#111827;
+  border-radius:16px;
+  padding:1rem;
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+.result-label {
+  margin:0;
+  font-size:0.8rem;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--muted);
+}
+.result-number {
+  margin:0.35rem 0 0;
+  font-size:1.4rem;
+  font-family:'JetBrains Mono', 'Inter', 'SF Pro Display', monospace;
+  transition:color 0.25s ease, transform 0.2s ease;
+}
+.result-number.pulse {
+  animation:tick 0.24s ease;
+}
+@keyframes tick {
+  0% { transform:translateY(0); }
+  50% { transform:translateY(-4px); }
+  100% { transform:translateY(0); }
+}
+.risk-status {
+  display:flex;
+  flex-direction:column;
+  gap:0.65rem;
+}
+.risk-pill {
+  align-self:flex-start;
+  padding:0.35rem 0.9rem;
+  border-radius:999px;
+  font-size:0.75rem;
+  font-weight:600;
+  color:#0b1118;
+  background:var(--accent);
+}
+.risk-gauge {
+  width:100%;
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+}
+.risk-gauge-fill {
+  width:0;
+  height:100%;
+  border-radius:999px;
+  background:var(--accent);
+  transition:width 0.25s ease, background 0.25s ease;
+}
+.risk-description {
+  margin:0;
+  font-size:0.85rem;
+  color:var(--muted);
+}
+.pip-info {
+  background:#0b1220;
+  border-radius:16px;
+  padding:1rem;
+  border:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  flex-direction:column;
+  gap:0.4rem;
+}
+.pip-info .pip-amount {
+  font-size:1.2rem;
+  font-family:'JetBrains Mono', monospace;
+}
+.pip-info .pip-source {
+  font-size:0.9rem;
+  color:var(--muted);
+}
+.pip-disclaimer {
+  margin:0;
+  font-size:0.7rem;
+  color:rgba(255,255,255,0.55);
+  line-height:1.2;
+}
+.notes-panel {
+  display:flex;
+  flex-direction:column;
+  gap:0.8rem;
+  background:#0f1319;
+}
+.notes-panel h3 {
+  margin:0;
+  font-size:1rem;
+}
+.note {
+  display:flex;
+  gap:0.75rem;
+  align-items:flex-start;
+  font-size:0.85rem;
+  color:var(--muted);
+}
+.info-circle {
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:0.8rem;
+  color:var(--highlight);
+}
+@media (min-width:768px) {
+  body {
+    padding:3rem;
+  }
+  .app-shell {
+    gap:2rem;
+  }
+  .panel {
+    padding:2rem;
+  }
+}
+</style>
+</head>
+<body>
+<main class="app-shell">
+  <header class="hero">
+    <p class="eyebrow">TradeGuard</p>
+    <h1>Risk Calculator</h1>
+    <p class="subtitle">Precision-first risk controls for calm trade execution.</p>
+  </header>
+  <section class="panel calculator-panel">
+    <div class="section-title">
+      <h2>Live Inputs</h2>
+      <p>Instant updates without network latency.</p>
+    </div>
+    <div class="input-group">
+      <label for="balance">Account Balance (USD)</label>
+      <div class="input-with-hint">
+        <input id="balance" type="number" min="0.01" step="0.01" inputmode="decimal" value="10000" autocomplete="off" required>
+        <span class="unit">USD</span>
+      </div>
+      <small class="field-error" id="balanceError"></small>
+    </div>
+    <div class="input-group">
+      <label for="risk">Risk Percentage (%)</label>
+      <div class="chips">
+        <button type="button" class="risk-chip" data-value="0.5">0.5%</button>
+        <button type="button" class="risk-chip active" data-value="1.0">1.0%</button>
+        <button type="button" class="risk-chip" data-value="2.0">2.0%</button>
+        <button type="button" class="risk-chip" data-value="3.0">3.0%</button>
+      </div>
+      <input id="risk" type="number" min="0.1" max="5" step="0.1" inputmode="decimal" value="1.0" autocomplete="off" required>
+      <small class="field-error" id="riskError"></small>
+    </div>
+    <div class="input-group">
+      <label for="stopLoss">Stop Loss (pips)</label>
+      <div class="input-with-hint">
+        <input id="stopLoss" type="number" min="0.1" step="0.1" inputmode="decimal" value="20" autocomplete="off" required>
+        <span class="unit">pips</span>
+      </div>
+      <small class="field-error" id="stopLossError"></small>
+    </div>
+    <div class="input-group">
+      <label for="pair">Currency Pair</label>
+      <select id="pair">
+        <option value="EURUSD" selected>EURUSD</option>
+        <option value="GBPUSD">GBPUSD</option>
+        <option value="USDJPY">USDJPY</option>
+        <option value="XAUUSD">XAUUSD</option>
+        <option value="GBPJPY">GBPJPY</option>
+      </select>
+    </div>
+    <div class="input-group conditional-field" id="marketPriceGroup" aria-hidden="true">
+      <label for="marketPrice">Market Price</label>
+      <div class="input-with-hint">
+        <input id="marketPrice" type="number" min="80" max="200" step="0.01" inputmode="decimal" value="150.00" autocomplete="off">
+        <span class="unit">USD</span>
+      </div>
+      <small class="field-error" id="marketPriceError"></small>
+    </div>
+    <button type="button" class="toggle-advanced" id="advancedToggle" aria-expanded="false">
+      Advanced pip control
+      <span>Show override</span>
+    </button>
+    <div class="advanced-panel" id="advancedPanel" aria-hidden="true">
+      <div class="input-group">
+        <label for="overridePip">Override Pip Value per 1.00 lot (USD)</label>
+        <input id="overridePip" type="number" min="0.1" step="0.01" inputmode="decimal" placeholder="Leave empty to auto-calc" autocomplete="off">
+        <small class="field-error" id="overrideError"></small>
+        <small style="color:var(--muted); font-size:0.75rem;">Populate only if you know the broker-specific pip value to use.</small>
+      </div>
+    </div>
+  </section>
+  <section class="panel results-panel" id="resultsPanel">
+    <div class="section-title">
+      <h2>Instant Results</h2>
+      <p>Always-visible risk signal.</p>
+    </div>
+    <div class="results-grid">
+      <div class="result-row">
+        <p class="result-label">You are risking</p>
+        <p class="result-number" id="resultRisk">$0.00</p>
+      </div>
+      <div class="result-row">
+        <p class="result-label">Recommended lot size</p>
+        <p class="result-number" id="resultLot">0.00 lots</p>
+      </div>
+    </div>
+    <div class="risk-status">
+      <span class="risk-pill" id="riskPill">Safe</span>
+      <div class="risk-gauge">
+        <span class="risk-gauge-fill" id="gaugeFill"></span>
+      </div>
+      <p class="risk-description" id="riskLabel">Safe zone: 0–2% risk</p>
+    </div>
+    <div class="pip-info">
+      <div class="pip-amount" id="pipValueDisplay">$10.00 per pip</div>
+      <div class="pip-source" id="pipSourceText">Fixed $10.00 pip value for this pair.</div>
+      <p class="pip-disclaimer">Always confirm pip value with your broker before executing live trades.</p>
+    </div>
+  </section>
+  <section class="panel notes-panel">
+    <h3>Notes &amp; Assumptions</h3>
+    <div class="note">
+      <span class="info-circle" aria-hidden="true">i</span>
+      <p>EURUSD &amp; GBPUSD use a fixed $10 pip value per 1.00 lot. XAUUSD assumes $1 per 0.01 move as its pip equivalent.</p>
+    </div>
+    <div class="note">
+      <span class="info-circle" aria-hidden="true">i</span>
+      <p>USDJPY/GBPJPY pip value is computed from your market price input. Adjust that figure or use the advanced override for firm broker quotes.</p>
+    </div>
+  </section>
+</main>
+<script>
+(function(){
+  const balanceInput = document.getElementById('balance');
+  const riskInput = document.getElementById('risk');
+  const stopLossInput = document.getElementById('stopLoss');
+  const pairSelect = document.getElementById('pair');
+  const marketPriceGroup = document.getElementById('marketPriceGroup');
+  const marketPriceInput = document.getElementById('marketPrice');
+  const overrideInput = document.getElementById('overridePip');
+  const advancedToggle = document.getElementById('advancedToggle');
+  const advancedPanel = document.getElementById('advancedPanel');
+  const chips = Array.from(document.querySelectorAll('.risk-chip'));
+  const resultRisk = document.getElementById('resultRisk');
+  const resultLot = document.getElementById('resultLot');
+  const riskPill = document.getElementById('riskPill');
+  const riskLabel = document.getElementById('riskLabel');
+  const gaugeFill = document.getElementById('gaugeFill');
+  const pipValueDisplay = document.getElementById('pipValueDisplay');
+  const pipSourceText = document.getElementById('pipSourceText');
+  const resultsPanel = document.getElementById('resultsPanel');
+  const balanceError = document.getElementById('balanceError');
+  const riskError = document.getElementById('riskError');
+  const stopLossError = document.getElementById('stopLossError');
+  const marketPriceError = document.getElementById('marketPriceError');
+  const overrideError = document.getElementById('overrideError');
+  const resultNumbers = [resultRisk, resultLot];
+  let lastRiskCategory = '';
+
+  const levelConfig = {
+    safe: {
+      label:'Safe',
+      description:'Safe zone: 0–2% risk',
+      color:'var(--accent)'
+    },
+    moderate: {
+      label:'Moderate',
+      description:'Moderate risk: 2–3%',
+      color:'var(--warning)'
+    },
+    dangerous:{
+      label:'Dangerous',
+      description:'Dangerous zone: >3%',
+      color:'var(--danger)'
+    },
+    pending:{
+      label:'Pending',
+      description:'Awaiting valid inputs',
+      color:'rgba(255,255,255,0.25)'
+    }
+  };
+
+  function parseNumber(value) {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function setError(element, message) {
+    element.textContent = message || '';
+  }
+
+  function refreshChips(value) {
+    chips.forEach(chip => {
+      const chipValue = parseFloat(chip.dataset.value);
+      const inputValue = parseFloat(value);
+      chip.classList.toggle('active', chipValue === inputValue);
+    });
+  }
+
+  function animateNumbers() {
+    resultNumbers.forEach(el => {
+      el.classList.remove('pulse');
+      void el.offsetWidth;
+      el.classList.add('pulse');
+    });
+  }
+
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}).format(value);
+  }
+
+  function formatNumber(value, decimals) {
+    return value.toLocaleString('en-US',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+  }
+
+  function updateCalculator() {
+    const balance = parseNumber(balanceInput.value);
+    const riskPercent = parseNumber(riskInput.value);
+    const stopLoss = parseNumber(stopLossInput.value);
+    const overrideValue = parseNumber(overrideInput.value);
+    const pair = pairSelect.value;
+    const requiresMarketPrice = pair === 'USDJPY' || pair === 'GBPJPY';
+    let marketPrice = parseNumber(marketPriceInput.value);
+    let valid = true;
+
+    refreshChips(riskInput.value);
+
+    setError(balanceError, '');
+    setError(riskError, '');
+    setError(stopLossError, '');
+    setError(marketPriceError, '');
+    setError(overrideError, '');
+
+    if (!balance || balance <= 0) {
+      setError(balanceError, 'Enter a positive account balance.');
+      valid = false;
+    }
+    if (!riskPercent || riskPercent < 0.1 || riskPercent > 5) {
+      setError(riskError, 'Risk must be between 0.1% and 5.0%.');
+      valid = false;
+    }
+    if (!stopLoss || stopLoss <= 0) {
+      setError(stopLossError, 'Enter a stop-loss greater than 0.');
+      valid = false;
+    }
+    if (requiresMarketPrice) {
+      marketPriceGroup.classList.add('visible');
+      marketPriceGroup.setAttribute('aria-hidden','false');
+      if (!marketPrice || marketPrice < 80 || marketPrice > 200) {
+        setError(marketPriceError, 'JPY market price must be 80–200.');
+        valid = false;
+      }
+    } else {
+      marketPriceGroup.classList.remove('visible');
+      marketPriceGroup.setAttribute('aria-hidden','true');
+    }
+    if (overrideInput.value.trim() !== '') {
+      if (!overrideValue || overrideValue <= 0) {
+        setError(overrideError, 'Override must be a positive number.');
+        valid = false;
+      }
+    }
+    resultsPanel.classList.toggle('inactive', !valid);
+
+    let pipValue = null;
+    let pipDescription = 'Awaiting valid inputs.';
+    let pipUnit = 'per pip';
+    if (valid) {
+      if (overrideInput.value.trim() !== '' && overrideValue) {
+        pipValue = overrideValue;
+        pipDescription = Overridden $${overrideValue.toFixed(2)} pip value per 1.00 lot.;
+        pipUnit = 'per pip';
+      } else if (pair === 'EURUSD' || pair === 'GBPUSD') {
+        pipValue = 10;
+        pipDescription = 'Fixed $10.00 pip value for this pair.';
+      } else if (pair === 'XAUUSD') {
+        pipValue = 1;
+        pipDescription = 'Fixed $1.00 pip value for this contract per 0.01 move.';
+        pipUnit = 'per 0.01 move';
+      } else if (requiresMarketPrice) {
+        pipValue = 1000 / marketPrice;
+        pipDescription = Computed pip value using market price $${marketPrice.toFixed(2)}.;
+      }
+    }
+
+    let riskUsd = 0;
+    let recommendedLot = 0;
+    if (valid && pipValue) {
+      riskUsd = balance * (riskPercent / 100);
+      const effectiveStop = stopLoss;
+      if (pipValue * effectiveStop > 0) {
+        recommendedLot = riskUsd / (pipValue * effectiveStop);
+      } else {
+        valid = false;
+      }
+    }
+
+    if (valid) {
+      resultRisk.textContent = formatCurrency(riskUsd);
+      const decimals = recommendedLot < 0.1 ? 3 : 2;
+      resultLot.textContent = ${formatNumber(recommendedLot, decimals)} lots;
+      animateNumbers();
+    } else {
+      resultRisk.textContent = '$—';
+      resultLot.textContent = '— lots';
+    }
+
+    const pipValueLabel = pipValue ? $${pipValue.toFixed(2)} ${pipUnit} : 'Awaiting valid inputs.';
+    pipValueDisplay.textContent = pipValueLabel;
+    pipSourceText.textContent = pipDescription;
+
+    let riskCategory = 'pending';
+    if (valid) {
+      if (riskPercent <= 2) {
+        riskCategory = 'safe';
+      } else if (riskPercent <= 3) {
+        riskCategory = 'moderate';
+      } else {
+        riskCategory = 'dangerous';
+      }
+    }
+    const config = levelConfig[riskCategory] || levelConfig.pending;
+    riskPill.textContent = config.label;
+    riskPill.style.backgroundColor = config.color;
+    riskPill.style.color = riskCategory === 'pending' ? '#ffffff' : '#0b1118';
+    riskLabel.textContent = config.description;
+    const widthPercent = valid && riskPercent ? Math.min((riskPercent / 5) * 100, 100) : 0;
+    gaugeFill.style.width = ${widthPercent}%;
+    gaugeFill.style.backgroundColor = config.color;
+
+    if (riskCategory !== lastRiskCategory && riskCategory !== 'pending') {
+      lastRiskCategory = riskCategory;
+      if (navigator.vibrate) {
+        navigator.vibrate(12);
+      }
+    }
+  }
+
+  advancedToggle.addEventListener('click', () => {
+    const isOpen = advancedPanel.classList.toggle('open');
+    advancedPanel.setAttribute('aria-hidden', String(!isOpen));
+    advancedToggle.setAttribute('aria-expanded', String(isOpen));
+    advancedToggle.querySelector('span').textContent = isOpen ? 'Hide override' : 'Show override';
+  });
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      riskInput.value = chip.dataset.value;
+      updateCalculator();
+    });
+  });
+
+  [balanceInput,riskInput,stopLossInput,pairSelect,marketPriceInput,overrideInput].forEach(element => {
+    element.addEventListener('input', updateCalculator);
+    element.addEventListener('change', updateCalculator);
+  });
+
+  updateCalculator();
+})();
+</script>
+</body>
+</html>
