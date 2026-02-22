@@ -608,14 +608,14 @@ select:focus {
     if (valid) {
       resultRisk.textContent = formatCurrency(riskUsd);
       const decimals = recommendedLot < 0.1 ? 3 : 2;
-      resultLot.textContent = ${formatNumber(recommendedLot, decimals)} lots;
+      resultLot.textContent = `${formatNumber(recommendedLot, decimals)} lots`;
       animateNumbers();
     } else {
       resultRisk.textContent = '$—';
       resultLot.textContent = '— lots';
     }
 
-    const pipValueLabel = pipValue ? $${pipValue.toFixed(2)} ${pipUnit} : 'Awaiting valid inputs.';
+    const pipValueLabel = pipValue ? `$${pipValue.toFixed(2)} ${pipUnit}` : 'Awaiting valid inputs.';
     pipValueDisplay.textContent = pipValueLabel;
     pipSourceText.textContent = pipDescription;
 
