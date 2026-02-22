@@ -578,7 +578,7 @@ select:focus {
     if (valid) {
       if (overrideInput.value.trim() !== '' && overrideValue) {
         pipValue = overrideValue;
-        pipDescription = Overridden $${overrideValue.toFixed(2)} pip value per 1.00 lot.;
+        pipDescription = `Overridden $${overrideValue.toFixed(2)} pip value per 1.00 lot.`;
         pipUnit = 'per pip';
       } else if (pair === 'EURUSD' || pair === 'GBPUSD') {
         pipValue = 10;
@@ -589,7 +589,7 @@ select:focus {
         pipUnit = 'per 0.01 move';
       } else if (requiresMarketPrice) {
         pipValue = 1000 / marketPrice;
-        pipDescription = Computed pip value using market price $${marketPrice.toFixed(2)}.;
+        pipDescription = `Computed pip value using market price $${marketPrice.toFixed(2)}.`;
       }
     }
 
