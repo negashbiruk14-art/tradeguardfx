@@ -716,12 +716,15 @@ function updateRR() {
   const stop = parseFloat(stopInput.value);
   const take = parseFloat(takeInput.value);
 
-  if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
+if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
     rrRisk.textContent = '0';
     rrReward.textContent = '0';
     rrRatio.textContent = '0';
+
+    document.getElementById('rrQuality').textContent = 'Trade quality: —';
+
     return;
-  }
+}
 
   const risk = Math.abs(entry - stop) * 10000;
   const reward = Math.abs(take - entry) * 10000;
