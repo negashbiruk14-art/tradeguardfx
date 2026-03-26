@@ -716,7 +716,7 @@ function updateRR() {
   const stop = parseFloat(stopInput.value);
   const take = parseFloat(takeInput.value);
 
-  if (!entry || !stop || !take) {
+  if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
     rrRisk.textContent = '0';
     rrReward.textContent = '0';
     rrRatio.textContent = '0';
