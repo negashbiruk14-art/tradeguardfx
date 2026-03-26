@@ -724,6 +724,35 @@ function updateRR() {
     el.addEventListener('input', updateRR);
   }
 });
+  const copySetupBtn = document.getElementById('copySetupBtn');
+
+if (copySetupBtn) {
+  copySetupBtn.addEventListener('click', function () {
+    const entry = entryInput.value || '-';
+    const stop = stopInput.value || '-';
+    const take = takeInput.value || '-';
+
+    const risk = rrRisk.textContent || '0';
+    const reward = rrReward.textContent || '0';
+    const ratio = rrRatio.textContent || '0';
+
+    const text =
+      'Trade Setup\n' +
+      'Entry: ' + entry + '\n' +
+      'Stop Loss: ' + stop + '\n' +
+      'Take Profit: ' + take + '\n' +
+      'Risk (pips): ' + risk + '\n' +
+      'Reward (pips): ' + reward + '\n' +
+      'Risk:Reward Ratio: ' + ratio;
+
+    navigator.clipboard.writeText(text).then(function () {
+      copySetupBtn.textContent = 'Copied';
+      setTimeout(function () {
+        copySetupBtn.textContent = 'Copy Trade Setup';
+      }, 1500);
+    });
+  });
+}
   updateRR();
   updateCalculator();
 })();
