@@ -327,6 +327,23 @@ select:focus {
     padding:2rem;
   }
 }
+#copySetupBtn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #10b981;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#copySetupBtn:hover {
+  background: #0ea371;
+}
 </style>
 </head>
 <body>
@@ -408,20 +425,20 @@ select:focus {
     </div>
     <div class="results-grid">
       <div class="result-row">
-        <p class="result-label">You are risking</p>
+        <p class="result-label">Risk per trade</p>
         <p class="result-number" id="resultRisk">$0.00</p>
       </div>
       <div class="result-row">
-        <p class="result-label">Recommended lot size</p>
+        <p class="result-label">Position size</p>
         <p class="result-number" id="resultLot">0.00 lots</p>
       </div>
     </div>
     <div class="risk-status">
-      <span class="risk-pill" id="riskPill">Safe</span>
+      <span class="risk-pill" id="riskPill">Low Risk</span>
       <div class="risk-gauge">
         <span class="risk-gauge-fill" id="gaugeFill"></span>
       </div>
-      <p class="risk-description" id="riskLabel">Safe zone: 0–2% risk</p>
+      <p class="risk-description" id="riskLabel">Optimal risk range: 0–2% risk</p>
     </div>
     <div class="pip-info">
       <div class="pip-amount" id="pipValueDisplay">$10.00 per pip</div>
