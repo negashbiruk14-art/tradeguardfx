@@ -710,21 +710,20 @@ const takeInput = document.getElementById('takeProfitPrice');
 const rrRisk = document.getElementById('rrRisk');
 const rrReward = document.getElementById('rrReward');
 const rrRatio = document.getElementById('rrRatio');
+const rrQuality = document.getElementById('rrQuality');
 
 function updateRR() {
   const entry = parseFloat(entryInput.value);
   const stop = parseFloat(stopInput.value);
   const take = parseFloat(takeInput.value);
 
-if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
+  if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
     rrRisk.textContent = '0';
     rrReward.textContent = '0';
     rrRatio.textContent = '0';
-
-    document.getElementById('rrQuality').textContent = 'Trade quality: —';
-
+    rrQuality.textContent = 'Trade quality: —';
     return;
-}
+  }
 
   const risk = Math.abs(entry - stop) * 10000;
   const reward = Math.abs(take - entry) * 10000;
@@ -733,29 +732,30 @@ if (isNaN(entry) || isNaN(stop) || isNaN(take)) {
   rrReward.textContent = reward.toFixed(1);
 
   if (risk > 0) {
-      const ratio = reward / risk;
-  rrRatio.textContent = ratio.toFixed(2);
+    const ratio = reward / risk;
+    rrRatio.textContent = ratio.toFixed(2);
 
-  const rrQuality = document.getElementById('rrQuality');
-
-  if (ratio < 1.5) {
-    rrQuality.textContent = 'Trade quality: Weak ❌';
-  } else if (ratio < 2) {
-    rrQuality.textContent = 'Trade quality: Decent ⚠️';
+    if (ratio < 1.5) {
+      rrQuality.textContent = 'Trade quality: Weak';
+    } else if (ratio < 2) {
+      rrQuality.textContent = 'Trade quality: Decent';
+    } else {
+      rrQuality.textContent = 'Trade quality: Strong';
+    }
   } else {
-    rrQuality.textContent = 'Trade quality: Strong ✅';
+    rrRatio.textContent = '0';
+    rrQuality.textContent = 'Trade quality: —';
   }
-
-} else {
-  rrRatio.textContent = '0';
-  document.getElementById('rrQuality').textContent = 'Trade quality: —';
 }
 
 [entryInput, stopInput, takeInput].forEach(function(el) {
   if (el) {
     el.addEventListener('input', updateRR);
+    el.addEventListener('change', updateRR);
   }
 });
+
+updateRR();
   const copySetupBtn = document.getElementById('copySetupBtn');
 
 if (copySetupBtn) {
