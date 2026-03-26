@@ -463,8 +463,8 @@ select:focus {
   <p>Reward (pips): <span id="rrReward">0</span></p>
   <p>Risk:Reward Ratio: <span id="rrRatio">0</span></p>
   <button type="button" id="copySetupBtn">Copy Trade Setup</button>
-</section>
-
+<p id="rrQuality">Trade quality: —</p>
+  </section>
   <section class="panel notes-panel">
     <h3>Notes &amp; Assumptions</h3>
     <div class="note">
@@ -730,10 +730,22 @@ function updateRR() {
   rrReward.textContent = reward.toFixed(1);
 
   if (risk > 0) {
-    rrRatio.textContent = (reward / risk).toFixed(2);
+      const ratio = reward / risk;
+  rrRatio.textContent = ratio.toFixed(2);
+
+  const rrQuality = document.getElementById('rrQuality');
+
+  if (ratio < 1.5) {
+    rrQuality.textContent = 'Trade quality: Weak ❌';
+  } else if (ratio < 2) {
+    rrQuality.textContent = 'Trade quality: Decent ⚠️';
   } else {
-    rrRatio.textContent = '0';
+    rrQuality.textContent = 'Trade quality: Strong ✅';
   }
+
+} else {
+  rrRatio.textContent = '0';
+  document.getElementById('rrQuality').textContent = 'Trade quality: —';
 }
 
 [entryInput, stopInput, takeInput].forEach(function(el) {
