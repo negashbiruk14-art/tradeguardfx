@@ -684,7 +684,45 @@ select:focus {
     element.addEventListener('input', updateCalculator);
     element.addEventListener('change', updateCalculator);
   });
+// === RISK REWARD CALCULATOR ===
+const entryInput = document.getElementById('entryPrice');
+const stopInput = document.getElementById('stopLossPrice');
+const takeInput = document.getElementById('takeProfitPrice');
 
+const rrRisk = document.getElementById('rrRisk');
+const rrReward = document.getElementById('rrReward');
+const rrRatio = document.getElementById('rrRatio');
+
+function updateRR() {
+  const entry = parseFloat(entryInput.value);
+  const stop = parseFloat(stopInput.value);
+  const take = parseFloat(takeInput.value);
+
+  if (!entry || !stop || !take) {
+    rrRisk.textContent = '0';
+    rrReward.textContent = '0';
+    rrRatio.textContent = '0';
+    return;
+  }
+
+  const risk = Math.abs(entry - stop) * 10000;
+  const reward = Math.abs(take - entry) * 10000;
+
+  rrRisk.textContent = risk.toFixed(1);
+  rrReward.textContent = reward.toFixed(1);
+
+  if (risk > 0) {
+    rrRatio.textContent = (reward / risk).toFixed(2);
+  } else {
+    rrRatio.textContent = '0';
+  }
+}
+
+[entryInput, stopInput, takeInput].forEach(function(el) {
+  if (el) {
+    el.addEventListener('input', updateRR);
+  }
+});
   updateCalculator();
 })();
 </script>
