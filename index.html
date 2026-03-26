@@ -430,6 +430,23 @@ select:focus {
   For educational purposes only. Always verify pip values and lot size with your broker before trading.
 </p>
   </section>
+  <section class="panel">
+  <h2>Risk / Reward Calculator</h2>
+
+  <label>Entry Price</label>
+  <input type="number" id="entryPrice" placeholder="1.1000">
+
+  <label>Stop Loss</label>
+  <input type="number" id="stopLossPrice" placeholder="1.0950">
+
+  <label>Take Profit</label>
+  <input type="number" id="takeProfitPrice" placeholder="1.1100">
+
+  <p>Risk (pips): <span id="rrRisk">0</span></p>
+  <p>Reward (pips): <span id="rrReward">0</span></p>
+  <p>Risk:Reward Ratio: <span id="rrRatio">0</span></p>
+</section>
+
   <section class="panel notes-panel">
     <h3>Notes &amp; Assumptions</h3>
     <div class="note">
